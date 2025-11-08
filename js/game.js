@@ -13,7 +13,7 @@ const arrMoney = ["Gold", "Silver", "Iron", "Bronze", "Seashells", "Copper", "Pl
 const arrWeapons = ["Staff", "Dagger", "Chain", "Katana", "Axe", "Laser", "PitchFork", "FireBomb", "Rocks", "Sword"];
 const arrClasses = ["Healer", "Warrior", "Thief", "Knight", "Damsel", "Gnome", "Ninja", "Gladiator", "Farmer"];
 const arrFamiliars = ["Capuchin", "Hawk", "Lynx", "Wolf", "Wyvern"];
-const arrNames = ["Abakor", "Bandala", "Cartin", "Dariane", "Fezzor", "Gizleeni", "Halor", "Ia", "Jeepenn", "Kalindaa", "Lineuss", "Mordana", "Nazzor", "Ortery"];
+const arrNames = ["Abakor", "Bandala", "Cartin", "Dariane", "Fezzor", "Gizleeni", "Halor", "Iaono", "Jeepenn", "Kalindaa", "Lineuss", "Mordana", "Nazzor", "Ortery", "Pandora", "Quonta", "Rozoro", "Spruyo", "Taranza", "Ulytana", "Voltera", "Whez", "Xanado", "Yogito", "Zzaru"];
 
 // Array to keep track of all Emails associated with each Saved game
 let arrEmails = [];
@@ -109,6 +109,7 @@ if ((valinCreateGameName != null && valinCreateGameName !="") &&
         'cName', 'name');
     const partyContainer = document.querySelector('#spnCreateGameOutput');
     partyContainer.innerHTML = ''; // clear any existing content
+    partyContainer.innerHTML = "<p>Your party is ready at your command. Start your quest.</p>";
     partyContainer.appendChild(partyTable);
 
 
@@ -126,7 +127,7 @@ if ((valinCreateGameName != null && valinCreateGameName !="") &&
         console.log("Added a new game successfully!");
     }; // END If..Else
 
-    // 10/23/2025 - Add button to move to the next level, dynamically ("Start Quest")
+    // Add "Start Quest" button to move to the next level
     document.querySelector("#spnCreateGameOutput").innerHTML += "<br><button id='btnStartQuest'>Start Quest</button>";
     document.querySelector("#btnStartQuest").addEventListener("click", function(){fnNavQuest("#pgCreateGame", "#pgTavern", tmpParty._id)});
 
@@ -189,7 +190,7 @@ function fnGameInit(){
         document.querySelector("#spnLGPartyTotals").innerHTML = "0";
     } else {
         console.log("FALSE we do NOT have an EMPTY save slot");
-        document.querySelector("#pLGPartyMessage").innerHTML = "Welcome back! Soldier on!";
+        document.querySelector("#pLGPartyMessage").innerHTML = "Welcome back!<br>Soldier on!";
         document.querySelector("#spnLGPartyTotals").innerHTML = tmpGamesAll.length;
         document.querySelector("#pLGPartySelect").innerHTML = "&nbsp;<br>";
 
@@ -256,7 +257,7 @@ function fnNavQuest(pgHide, pgShow, currParty) {
             fnTmpPath(currParty); 
             break;
         default: 
-            console.log("Unknown place - nowhere to go", pgShow);
+            console.log("Unknown place - going nowhere", pgShow);
             break;
     }; // END switch()
 }; // END fnNavQuest()
@@ -350,7 +351,7 @@ function fnTavern(currParty){
                         document.querySelector("#pTvnResults").innerHTML += "<p>Wonderful! Your STR was high enough! You have increased your STR by " + tmpRndVal + ". <br> Now venture to the forest</p>"+
                         "<p><button id='btnTvnGoForest'>Forest</button></p>";
                         let elBtnTvnGoForest = document.querySelector("#btnTvnGoForest");
-                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty)});
+                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty._id)});
                     }else if(currHero.cStr == tvEnemy01.eStr){
                         console.log("Tie");
                         
@@ -364,7 +365,7 @@ function fnTavern(currParty){
                         document.querySelector("#pTvnResults").innerHTML += "<p>Close call! Your STR was good enough! You have increased your STR by " + tmpRndVal + ". <br> Now head over to the forest</p>"+
                         "<p><button id='btnTvnGoForest'>Forest</button></p>";
                         let elBtnTvnGoForest = document.querySelector("#btnTvnGoForest");
-                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty)});
+                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty._id)});
                     } else {
                         console.log("loss...");
                         
@@ -378,7 +379,7 @@ function fnTavern(currParty){
                         document.querySelector("#pTvnResults").innerHTML += "<p>Alas! Your STR failed you! You have barely increased your STR by " + tmpRndVal + ". <br> Away from my sight, to the forest!!</p>"+
                         "<p><button id='btnTvnGoForest'>Forest</button></p>";
                         let elBtnTvnGoForest = document.querySelector("#btnTvnGoForest");
-                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty)});
+                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty._id)});
                     }; // END If..Else If() win/loss/draw
                 }; // END fnTvFight()
 
@@ -420,7 +421,7 @@ function fnTavern(currParty){
                         document.querySelector("#pTvnResults").innerHTML += "<p>Wonderful! Your SPD was high enough! You have increased your SPD by " + tmpRndVal + ". <br> Now venture to the forest</p>"+
                         "<p><button id='btnTvnGoForest'>Forest</button></p>";
                         let elBtnTvnGoForest = document.querySelector("#btnTvnGoForest");
-                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty)});
+                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty._id)});
                     }else if(currHero.cSpd == tvEnemy02.eSpd){
                         console.log("Tie");
                         
@@ -434,7 +435,7 @@ function fnTavern(currParty){
                         document.querySelector("#pTvnResults").innerHTML += "<p>Close call! Your SPD was good enough! You have increased your SPD by " + tmpRndVal + ". <br> Now head over to the forest</p>"+
                         "<p><button id='btnTvnGoForest'>Forest</button></p>";
                         let elBtnTvnGoForest = document.querySelector("#btnTvnGoForest");
-                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty)});
+                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty._id)});
                     } else {
                         console.log("loss...");
                         
@@ -448,7 +449,7 @@ function fnTavern(currParty){
                         document.querySelector("#pTvnResults").innerHTML += "<p>Alas! Your SPD failed you! You have barely increased your SPD by " + tmpRndVal + ". <br> Away from my sight, to the forest!!</p>"+
                         "<p><button id='btnTvnGoForest'>Forest</button></p>";
                         let elBtnTvnGoForest = document.querySelector("#btnTvnGoForest");
-                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty)});
+                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty._id)});
                     }; // END If..Else If() win/loss/draw
                 }; // END fnTvRace()
 
@@ -491,7 +492,7 @@ function fnTavern(currParty){
                         document.querySelector("#pTvnResults").innerHTML += "<p>Wonderful! Your LUK was high enough! You have increased your LUK by " + tmpRndVal + ". <br> Now venture to the forest</p>"+
                         "<p><button id='btnTvnGoForest'>Forest</button></p>";
                         let elBtnTvnGoForest = document.querySelector("#btnTvnGoForest");
-                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty)});
+                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty._id)});
                     }else if(currHero.cLuck == tvEnemy03CurrLuck){
                         console.log("Tie");
                         
@@ -505,7 +506,7 @@ function fnTavern(currParty){
                         document.querySelector("#pTvnResults").innerHTML += "<p>Close call! Your LUK was good enough! You have increased your LUK by " + tmpRndVal + ". <br> Now head over to the forest</p>"+
                         "<p><button id='btnTvnGoForest'>Forest</button></p>";
                         let elBtnTvnGoForest = document.querySelector("#btnTvnGoForest");
-                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty)});
+                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty._id)});
                     } else {
                         console.log("loss...");
                         
@@ -519,7 +520,7 @@ function fnTavern(currParty){
                         document.querySelector("#pTvnResults").innerHTML += "<p>Alas! Your LUK failed you! You have barely increased your LUK by " + tmpRndVal + ". <br> Away from my sight, to the forest!!</p>"+
                         "<p><button id='btnTvnGoForest'>Forest</button></p>";
                         let elBtnTvnGoForest = document.querySelector("#btnTvnGoForest");
-                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty)});
+                        elBtnTvnGoForest.addEventListener("click", function(){fnNavQuest("#pgTavern", "#pgForest", myParty._id)});
                     }; // END If..Else If() win/loss/draw
                 }; // END fnTvGamble()
             }; // END If..Else for Selecting a character
