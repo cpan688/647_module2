@@ -29,7 +29,9 @@ function fnGenArray(anArray){
     return anArray[tmpNumber];
 }; // END fnGenArray()
 
-
+//========================================================================
+//  fnCharCreate - this function creates game characters
+//========================================================================
 function fnCharCreate(){
 console.log("fnCharCreate() is running");
 
@@ -56,7 +58,7 @@ if ((valinCreateGameName != null && valinCreateGameName !="") &&
 
     console.log(tmpMainCharacter, tmpMainCharacter.cTotals());
 
-    // Now generate companions
+    // Generate companion #1 and #2
     let tmpCompanion01 = new PartyMember(fnGenArray(arrNames),
         fnGenArray(arrStats),
         fnGenArray(arrStats),
@@ -110,7 +112,7 @@ if ((valinCreateGameName != null && valinCreateGameName !="") &&
     partyContainer.appendChild(partyTable);
 
 
-    // Save this new party (Email ONLY) in localStorage, but first check if anything has been previously saved
+    // Save this new party in localStorage (Save Email ONLY), but first check if anything has been previously saved
     let tmpAllEmails =  JSON.parse(localStorage.getItem("allEmails"));
     if(!tmpAllEmails){
         arrEmails.push(tmpParty._id);
@@ -124,7 +126,7 @@ if ((valinCreateGameName != null && valinCreateGameName !="") &&
         console.log("Added a new game successfully!");
     }; // END If..Else
 
-    // NEW 10/23/2025 - Add button to move to the next level, dynamically (Start Quest)
+    // 10/23/2025 - Add button to move to the next level, dynamically ("Start Quest")
     document.querySelector("#spnCreateGameOutput").innerHTML += "<br><button id='btnStartQuest'>Start Quest</button>";
     document.querySelector("#btnStartQuest").addEventListener("click", function(){fnNavQuest("#pgCreateGame", "#pgTavern", tmpParty._id)});
 
@@ -169,7 +171,44 @@ class Enemy {
     }; // END .eLuck() Method
 }; // END Enemy class (JCN)
 
-// Loads the data of a Player; requires an email Input (Parameter)
+
+//========================================================================
+//  fnGameInit - this function initialize the game
+//========================================================================
+function fnGameInit(){
+    console.log("fnGameInit() is running");
+    document.querySelector("#pgWelcome").style.display = "block";
+
+    // At game start, get the Array of all emails in localStorage
+    let tmpGamesAll = JSON.parse(localStorage.getItem("allEmails"));
+
+    // If no previous data was saved, tell user to go back to create a new game, otherwise show previous saved list
+    if(!tmpGamesAll){
+        console.log("TRUE that we have NO saves");
+        document.querySelector("#pLGPartyMessage").innerHTML = "Hello, you are new... Go back and click on 'Create Game' to begin the game<br>";
+        document.querySelector("#spnLGPartyTotals").innerHTML = "0";
+    } else {
+        console.log("FALSE we do NOT have an EMPTY save slot");
+        document.querySelector("#pLGPartyMessage").innerHTML = "Welcome back! Soldier on!";
+        document.querySelector("#spnLGPartyTotals").innerHTML = tmpGamesAll.length;
+        document.querySelector("#pLGPartySelect").innerHTML = "&nbsp;<br>";
+
+        // Show the Saved Games (Parties) to select from
+        for(let i = 0; i < tmpGamesAll.length; i++){
+            let tmpPartyData = JSON.parse(localStorage.getItem(tmpGamesAll[i]));
+            document.querySelector("#pLGPartySelect").innerHTML += 
+                "<p>" + tmpPartyData.cMain.cName + " <button onclick='fnGameLoad(`" + tmpGamesAll[i] + "`);'>" + "Enter Game" + "</button></p>";
+        }; //END For()
+        
+    }; // END If..Else()
+}; // END fnGameInit()
+
+// Initialize the game
+fnGameInit();
+
+//============================================================================
+//  fnGameLoad - this function loads a previously saved game using email id
+//============================================================================
 function fnGameLoad(gData){
     console.log("fnGameLoad() is running, loading " , gData);
     // Get data from localStorage and Parse it back into a JSON object
@@ -179,8 +218,9 @@ function fnGameLoad(gData){
     fnNavQuest("#pgLoadGame", tmpLoadAllData._currentScreen, gData);
 }; // END fnGameLoad()
 
-
-// This function keeps track of current player and which screen to show
+//============================================================================
+//  fnNavQuest - this function tracks current player location
+//============================================================================
 function fnNavQuest(pgHide, pgShow, currParty) {
     console.log("fnNavQuest() is running");
     console.log("Coming from: " + pgHide);
@@ -197,21 +237,32 @@ function fnNavQuest(pgHide, pgShow, currParty) {
             break;
         case "#pgForest":
             console.log("About to initialize The Forest");
-            // fnForest(currParty);
+            fnForest(currParty);
             break;
         case "#pgLake":
             console.log("About to initialize The Lake");
-            // fnLake(currParty);
+            fnLake(currParty);
+            break;
+        case "#pgMountain":
+            console.log("About to initialize The Mountain");
+            fnTmpPath(currParty); 
+            break;
+        case "#pgBridge":
+            console.log("About to initialize The Bridge");
+            fnTmpPath(currParty); 
+            break;
+        case "#pgNEWW":
+            console.log("About to initialize The NEWW");
+            fnTmpPath(currParty); 
             break;
         default: 
-            // Didn't match with any known possibility
-            console.log("Unknown screen ? ", pgShow);
+            console.log("Unknown place - nowhere to go", pgShow);
             break;
     }; // END switch()
 }; // END fnNavQuest()
 
-//========================================================================
-//  Tavern Function - the Main Event
+//============================================================================
+//  fnTavern - the Main Event at the Tavern
 //========================================================================
 function fnTavern(currParty){
     console.log("At the Tavern with ", currParty);
@@ -234,7 +285,6 @@ function fnTavern(currParty){
     partyContainer.innerHTML = ''; // clear any existing content
     partyContainer.appendChild(partyTable);
 
-
     // Pick from a drop down menu of myParty members to participate in the Tavern action
     document.querySelector("#pTvnParty").innerHTML += "<p><form id='frmTvnSlctChar'>" + 
         "<label>Choose a Party Member: </label>" +
@@ -247,11 +297,11 @@ function fnTavern(currParty){
     "</form></p>"; // END the <form> to pick a Party member
 
     document.querySelector("#frmTvnSlctChar").addEventListener("change", function(){
-        // Read the Values of what we selected
+        // Player must select a character to participate in battle
         let valSelTvnChar = document.querySelector("#selTvnChar");
         let valSelTvnCharObj = valSelTvnChar.options[valSelTvnChar.selectedIndex];
     
-        // Let player pick a battle action
+        // Player must pick an action for the battle
         if(valSelTvnCharObj.value == 0){
             console.log("true, we picked NOTHING");
         } else {
@@ -485,6 +535,7 @@ function fnTavern(currParty){
     let tvEnemy03 = new Enemy("Troll",   
         fnGenArray(arrStats), fnGenArray(arrStats), fnGenArray(arrStats), fnGenArray(arrStats),
         fnGenArray(arrWeapons), fnGenArray(arrClasses), "Normal");
+
     // Display enemies in a table
     const enemyTable = showTable(
         [tvEnemy01, tvEnemy02, tvEnemy03],
@@ -498,49 +549,452 @@ function fnTavern(currParty){
     const enemyContainer = document.querySelector('#pTvnEnemy');
     enemyContainer.innerHTML = '';
     enemyContainer.appendChild(enemyTable);
-    // document.querySelector("#pTvnEnemy").innerHTML = "<table><tr><td style='padding-right: 0.5em; border-right: 2px solid goldenrod; border-left: 2px solid goldenrod; padding-left: 0.5em;'>" +
-    //         tvEnemy01.eType +
-    //         "<br>" + tvEnemy01.eClass +
-    //     "</td><td style='padding-right: 0.5em; border-right: 2px solid goldenrod; padding-left: 0.5em;'>" +
-    //         tvEnemy02.eType +
-    //         "<br>" + tvEnemy02.eClass +
-    //     "</td><td style='padding-left: 0.5em; border-right: 2px solid goldenrod;'>" +
-    //         tvEnemy03.eType +
-    //         "<br>" + tvEnemy03.eClass +
-    // "</td></tr></table>"; // END <table> of Enemies
-
-    
+   
 }; // END fnTavern()
 
 
-// Universal game initializer subroutine
-function fnGameInit(){
-    console.log("fnGameInit() is running");
-    document.querySelector("#pgWelcome").style.display = "block";
+// TMP function for the future levels
+function fnTmpPath(currParty){
+    console.log("tmppath", currParty);
+}; // END fnTmpPath()
 
-    // At game start, get the Array of all emails in localStorage
-    let tmpGamesAll = JSON.parse(localStorage.getItem("allEmails"));
 
-    // If no previous data was saved, tell user to go back to create a new game, otherwise show previous saved list
-    if(!tmpGamesAll){
-        console.log("TRUE that we have NO saves");
-        document.querySelector("#pLGPartyMessage").innerHTML = "Hello, you are new... Go back and click on 'Create Game' to begin<br>";
-        document.querySelector("#spnLGPartyTotals").innerHTML = "0";
-    }else{
-        console.log("FALSE we do NOT have an EMPTY save slot");
-        document.querySelector("#pLGPartyMessage").innerHTML = "Welcome back! Soldier on!";
-        document.querySelector("#spnLGPartyTotals").innerHTML = tmpGamesAll.length;
-        document.querySelector("#pLGPartySelect").innerHTML = "&nbsp;";
+//========================================================================
+//  fnForest - Function for the all the action in the Forest
+//========================================================================
+function fnForest(currParty){
+    console.log("At the forest with", currParty);
 
-        // Show the Saved Games (Parties) to select from
-        for(let i = 0; i < tmpGamesAll.length; i++){
-            let tmpPartyData = JSON.parse(localStorage.getItem(tmpGamesAll[i]));
-            document.querySelector("#pLGPartySelect").innerHTML += 
-                "<p>" + tmpPartyData.cMain.cName + " <button onclick='fnGameLoad(`" + tmpGamesAll[i] + "`);'>" + "Enter Game" + "</button></p>";
-        }; //END For()
-        
-    }; // END If..Else()
-}; // END fnGameInit()
+    let myParty = JSON.parse(localStorage.getItem(currParty));
+    console.log(myParty._id);
+
+    // Set up Lookup Tables (Multi-Dimensional Array) for the Forest Intro Message
+    // arrFstMessage[PERSON, ITEM, TRAIT]
+    const arrFstMessages = [
+            ["Aba", "Beb", "Cab", "Dek", "Eep"], 
+            ["Secret Book", "Holy Codex", "Lost Parchment", "Gothic Scroll"], 
+            ["Power", "Wisdom", "Validation", "Insight", "Experience", "Adventure", "Love", "Treasure"]
+        ]; // END arrFstMessages
+    // Pick randomly for each
+    let valFstPerson    = arrFstMessages[0][fnRandomNumRange(0, 4)];
+    let valFstItem      = arrFstMessages[1][fnRandomNumRange(0, 3)];
+    let valFstTrait     = arrFstMessages[2][fnRandomNumRange(0, 7)];
+
+    document.querySelector("#pFstMsg").innerHTML = "You have reached The Forbidden Forest. You meet a lone traveller. <br><br>Say hello to " + valFstPerson + " who possesses the " + valFstItem + " and seeks " + valFstTrait + "!"; 
+
+    document.querySelector("#pFstParty").innerHTML = "<table><tr><td style='padding-right: 0.5em; border-right: 2px solid goldenrod;'>" + 
+            myParty.cMain.cName +
+            "<br>The " + myParty.cMain.cClass +
+            "<br>HP: " + myParty.cMain.cHP +
+            "<br>MP: " + myParty.cMain.cMp +
+
+            "</td><td style='padding-right: 0.5em; border-right: 2px solid goldenrod; padding-left: 0.5em;'>" + 
+            myParty.cComp01.cName +
+            "<br>The " + myParty.cComp01.cClass +
+            "<br>HP: " + myParty.cComp01.cHP +
+            "<br>MP: " + myParty.cComp01.cMp +
+
+            "</td><td style='padding-left: 0.5em;'>" + 
+            myParty.cComp02.cName +
+            "<br>The " + myParty.cComp02.cClass +
+            "<br>HP: " + myParty.cComp02.cHP +
+            "<br>MP: " + myParty.cComp02.cMp +
+    
+        "</td></tr></table>"; // END <table> of Party
+
+        document.querySelector("#pFstAction").innerHTML = "You will ask " + valFstPerson + 
+         " to help you on your quest by giving you some of their " + valFstTrait + " from their " + valFstItem + "!" +
+         "<p><button id='btnFstHP'>Ask for HP</button> <button id='btnFstMP'>Ask for MP</button></p>"
+        ; // END #pFstAction
+
+        // Set up an Object for that <button> and then Event Listener, then Function
+        let elBtnFstHP = document.querySelector("#btnFstHP");
+        let elBtnFstMP = document.querySelector("#btnFstMP");
+
+        elBtnFstHP.addEventListener("click", fnFstGetHP);
+        elBtnFstMP.addEventListener("click", fnFstGetMP);
+
+        function fnFstGetHP(){
+            console.log("fnFstGetHP() is running");
+            elBtnFstMP.disabled = true;
+            elBtnFstHP.disabled = true;
+            // Generate this character
+                // constructor(eType, eHp, eStr, eSpd, eMp, eWep, eClass, eStatus){ .eLuck()
+            let fstNPC = new Enemy(valFstPerson, fnGenArray(arrStats), null, null, fnGenArray(arrStats), valFstItem, null, valFstTrait);
+            console.log(fstNPC);
+            // Generate a Random fraction to take some of their Stat
+            let tmpRndFrac = Math.random();
+            console.log(tmpRndFrac);
+            // Generate a random boon of HP, based on their Stat
+            let tmpNewHP = fstNPC.eHp * tmpRndFrac;
+            console.log(Math.ceil(tmpNewHP));
+            // Then add the new boon (values)
+            myParty.cMain.cHP   += Math.ceil(tmpNewHP);
+            myParty.cComp01.cHP += Math.ceil(tmpNewHP);
+            myParty.cComp02.cHP += Math.ceil(tmpNewHP);
+            // Also, create a new Property for the ITEM!
+            myParty._inventory = [fstNPC.eWep];
+
+            // Pick from the 3 possible paths:  #pgLake (1)  #pgMountain (2)  #pgBridge (3)
+            let tmpRndPath = ["#pgLake", "#pgMountain", "#pgBridge"];
+            let tmpRndNextPath = tmpRndPath[fnRandomNumRange(0, 2)];
+            switch(tmpRndNextPath){
+                case "#pgLake":
+                    console.log("About to go to Lake");
+                    myParty._currentScreen = "#pgLake";
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Lake"
+                    break;
+                case "#pgMountain":
+                    console.log("About to go to Mountain");
+                    myParty._currentScreen = "#pgMountain";
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Mountain"
+                    break;
+                case "#pgBridge":
+                    console.log("About to go to Bridge");
+                    myParty._currentScreen = "#pgBridge"
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Bridge"
+                    break;
+                default:
+                    console.log(tmpRndNextPath);
+                    break;
+            }; // END Switch() for next path
+
+            // Show the updated stats
+            document.querySelector("#pFstResults").innerHTML = "<table><tr><td style='padding-right: 0.5em; border-right: 2px solid goldenrod;'>" + 
+            myParty.cMain.cName +
+            "<br>HP: " + myParty.cMain.cHP +
+            
+            "</td><td style='padding-right: 0.5em; border-right: 2px solid goldenrod; padding-left: 0.5em;'>" + 
+            myParty.cComp01.cName +
+            "<br>HP: " + myParty.cComp01.cHP +
+            
+            "</td><td style='padding-left: 0.5em;'>" + 
+            myParty.cComp02.cName +
+            "<br>HP: " + myParty.cComp02.cHP +
+            
+            "</td></tr></table>" + 
+            
+            "<p>Amazing! " + valFstPerson + " has bestowed upon you " + (Math.ceil(tmpRndFrac*100)) + "% of their Power and gifted you their " + valFstItem  +"!</p>" + 
+            "<p>Now, head for the " + tmpRndNextPath + " with your boon.</p>" +
+            "<p><button id='btnFstGoNext'>Go</button></p>"
+            ; // END <table> updated    
+            let elBtnFstGoNext = document.querySelector("#btnFstGoNext");
+            elBtnFstGoNext.addEventListener("click", function(){fnNavQuest("#pgForest", myParty._currentScreen, myParty._id)});
+        }; // END fnFstGetHP()
+
+        function fnFstGetMP(){
+            console.log("fnFstGetMP() is running");
+            elBtnFstMP.disabled = true;
+            elBtnFstHP.disabled = true;
+            let fstNPC = new Enemy(valFstPerson, fnGenArray(arrStats), null, null, fnGenArray(arrStats), valFstItem, null, valFstTrait);
+            console.log(fstNPC);
+            // Generate a Random fraction to take some of their Stat
+            let tmpRndFrac = Math.random();
+            console.log(tmpRndFrac);
+            // Generate a random boon of HP, based on their Stat
+            let tmpNewMP = fstNPC.eMp * tmpRndFrac;
+            console.log(Math.ceil(tmpNewMP));
+            myParty.cMain.cMp   += Math.ceil(tmpNewMP);
+            myParty.cComp01.cMp += Math.ceil(tmpNewMP);
+            myParty.cComp02.cMp += Math.ceil(tmpNewMP);
+            myParty._inventory = [fstNPC.eWep];
+
+            // Pick from the 3 possible paths:  #pgLake (1)  #pgMountain (2)  #pgBridge (3)
+            let tmpRndPath = ["#pgLake", "#pgMountain", "#pgBridge"];
+            let tmpRndNextPath = tmpRndPath[fnRandomNumRange(0, 2)];
+            switch(tmpRndNextPath){
+                case "#pgLake":
+                    console.log("About to go to Lake");
+                    myParty._currentScreen = "#pgLake";
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Lake";
+                    break;
+                case "#pgMountain":
+                    console.log("About to go to Mountain");
+                    myParty._currentScreen = "#pgMountain";
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Mountain";
+                    break;
+                case "#pgBridge":
+                    console.log("About to go to Bridge");
+                    myParty._currentScreen = "#pgBridge"
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Bridge";
+                    break;
+                default:
+                    console.log(tmpRndNextPath);
+                    break;
+            }; // END Switch() for next path
+
+            // Show the updated stats
+            document.querySelector("#pFstResults").innerHTML = "<table><tr><td style='padding-right: 0.5em; border-right: 2px solid goldenrod;'>" + 
+            myParty.cMain.cName +
+            "<br>MP: " + myParty.cMain.cMp +
+            
+            "</td><td style='padding-right: 0.5em; border-right: 2px solid goldenrod; padding-left: 0.5em;'>" + 
+            myParty.cComp01.cName +
+            "<br>MP: " + myParty.cComp01.cMp +
+            
+            "</td><td style='padding-left: 0.5em;'>" + 
+            myParty.cComp02.cName +
+            "<br>MP: " + myParty.cComp02.cMp +
+            
+            "</td></tr></table>" +
+
+            "<p>Amazing! " + valFstPerson + " has bestowed upon you " + (Math.ceil(tmpRndFrac*100)) + "% of their Power and gifted you their " + valFstItem  +"!</p>" +
+            "<p>Now, head for the " + tmpRndNextPath + " with your boon.</p>" +
+            "<p><button id='btnFstGoNext'>Go</button></p>"
+            ; // END <table> updated    
+            let elBtnFstGoNext = document.querySelector("#btnFstGoNext");
+            elBtnFstGoNext.addEventListener("click", function(){fnNavQuest("#pgForest", myParty._currentScreen, myParty._id)});
+            
+            ; // END <table> of Party UPGRADE
+        }; // END fnFstGetMP()
+}; // END fnForest()
+
+//=====================================================================
+//  fnLake - Function for all the Lake action
+//=====================================================================
+function fnLake(currParty){
+    console.log("At the Lake", currParty);
+    let myParty = JSON.parse(localStorage.getItem(currParty));
+    console.log(myParty._id);
+
+    document.querySelector("#pLakMsg").innerHTML = "Welcome to Eel Lake. A powerful foe stands before you! You must all join together to defeat it!";  
+
+    // A Function to draw the Party Table when needed, then run it right away
+    function fnPartyDrawTable(){
+            document.querySelector("#pLakParty").innerHTML = "<table><tr><td style='padding-right: 0.5em; border-right: 2px solid goldenrod;'>" + 
+            myParty.cMain.cName +
+            "<br>HP: " + myParty.cMain.cHP +
+            "<br>WEP: " + myParty.cMain.cWep +
+
+            "</td><td style='padding-right: 0.5em; border-right: 2px solid goldenrod; padding-left: 0.5em;'>" + 
+            myParty.cComp01.cName +
+            "<br>HP: " + myParty.cComp01.cHP +
+            "<br>WEP: " + myParty.cComp01.cWep +
+
+            "</td><td style='padding-left: 0.5em;'>" + 
+            myParty.cComp02.cName +
+            "<br>HP: " + myParty.cComp02.cHP +
+            "<br>WEP: " + myParty.cComp02.cWep +
+    
+        "</td></tr></table>"; // END <table> of Party
+    }; // END fnPartyDrawTable()
+
+    // Render the table at the start of the level, and then later, after taking damage
+    fnPartyDrawTable();
+
+    // Enemy { constructor(eType, eHp, eStr, eSpd, eMp, eWep, eClass, eStatus){ eLuck() {}}
+    // Generate a Level Boss
+    let lakBoss = new Enemy("Aqua Takson", fnRandomNumRange(75, 100), null, null, null, fnGenArray(arrWeapons), null, "Alive");
+    console.log(lakBoss);
+
+    document.querySelector("#pLakEnemy").innerHTML = lakBoss.eType + " stands before you! They hold a " + lakBoss.eWep + " and have " + lakBoss.eHp + "HP. Who of your Party will strike first?";
+
+    // Create Buttons for the action of each character
+    document.querySelector("#pLakAction").innerHTML = 
+        myParty.cMain.cName   + " uses " + myParty.cMain.cWep   + " <button id='btnLakMain'>Go!</button><br>" +
+        myParty.cComp01.cName + " uses " + myParty.cComp01.cWep + " <button id='btnLakC01'>Go!</button><br>" +
+        myParty.cComp02.cName + " uses " + myParty.cComp02.cWep + " <button id='btnLakC02'>Go!</button>" 
+        ; // END of #pLakActions
+    // Create JS Objects for each of generated Buttons
+    let elBtnLakMain = document.querySelector("#btnLakMain"); 
+    let elBtnLakC01 =  document.querySelector("#btnLakC01");
+    let elBtnLakC02 =  document.querySelector("#btnLakC02");
+
+    // Create Event Listeners for each of those Buttons
+    // If you need to pass a Parameter into a function: function(){subRoutine(parameter);}
+    // If you DON'T need to pass a Parm, it's only: subRoutine (no parens)
+    elBtnLakMain.addEventListener("click", fnLakMainFight);
+    elBtnLakC01.addEventListener("click",  fnLakC01Fight);
+    elBtnLakC02.addEventListener("click",  fnLakC02Fight);
+
+    // Create Functions for those Button Clicks
+    function fnLakMainFight(){
+        console.log(myParty.cMain.cName, myParty.cMain.cLuck, "VS", lakBoss.eHp);
+        // This character fighting, so disable their Button
+        elBtnLakMain.disabled = true;
+        // From BOSS, subtract LUK as a hit
+        lakBoss.eHp = lakBoss.eHp - myParty.cMain.cLuck;
+        // Conditional to deal with a "Boss Defeated" or a "Keep Fighting Boss"
+        if(lakBoss.eHp <= 0){
+            console.log("BOSS DEFEATED");
+            // Deactivate other attacks
+            elBtnLakMain.disabled = true;
+            elBtnLakC01.disabled = true;
+            elBtnLakC02.disabled = true;
+            
+            myParty.cMain.cLuck     += fnRandomNumRange(25, 75);
+            myParty.cComp01.cLuck   += fnRandomNumRange(25, 75);
+            myParty.cComp02.cLuck   += fnRandomNumRange(25, 75);
+
+            let tmpRndPath = ["#pgNEWW", "#pgMountain", "#pgBridge"];
+            let tmpRndNextPath = tmpRndPath[fnRandomNumRange(0, 2)];
+            switch(tmpRndNextPath){
+                case "#pgNEWW":
+                    console.log("About to go to NEWW");
+                    myParty._currentScreen = "#pgNEWW";
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "NEWW";
+                    break;
+                case "#pgMountain":
+                    console.log("About to go to Mountain");
+                    myParty._currentScreen = "#pgMountain";
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Mountain";
+                    break;
+                case "#pgBridge":
+                    console.log("About to go to Bridge");
+                    myParty._currentScreen = "#pgBridge"
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Bridge";
+                    break;
+                default:
+                    console.log(tmpRndNextPath);
+                    break;
+            }; // END Switch() for next path
+
+            console.log(myParty);
+
+            document.querySelector("#pLakResults").innerHTML = "<p>Success!</p><p>" + myParty.cMain.cName + " struck the final attack and defeated " + lakBoss.eType + "!</p><p>You now have " + myParty.cMain.cLuck +"LUK and get to move on to the " + tmpRndNextPath + ".</p><p><button id='btnLakGoNext'>Next Level</button></p>";
+            let elBtnLakGoNext = document.querySelector("#btnLakGoNext");
+            elBtnLakGoNext.addEventListener("click", function(){fnNavQuest("#pgLake", myParty._currentScreen, myParty._id)});
+        }else{
+            console.log("KEEP FIGHTING", lakBoss.eHp);
+            // You took damage
+            let tmpHIT = myParty.cMain.cHP / 10;
+            myParty.cMain.cHP = Math.round(myParty.cMain.cHP - tmpHIT);
+            console.log("Main down to", myParty.cMain.cHP);
+            // After the attack, update #pLakResults to show weaker Boss
+            document.querySelector("#pLakResults").innerHTML = "<p>You have weakened " + lakBoss.eType + " down to " + lakBoss.eHp + "HP! Keep fighting and choose another Party Member!</p>" +
+            "<p>" + myParty.cMain.cName + " is weakened: " + myParty.cMain.cHP + "HP!</p>"
+            ; // END #pLakResults
+
+            // and then our Party table with damage taken
+            fnPartyDrawTable();
+        }; // END If..Else eHP checker
+    }; // END fnLakMainFight()
+
+    function fnLakC01Fight(){
+        console.log(myParty.cComp01.cName, myParty.cComp01.cLuck, "VS", lakBoss.eHp);
+        elBtnLakC01.disabled = true;
+        lakBoss.eHp = lakBoss.eHp - myParty.cComp01.cLuck;
+        if(lakBoss.eHp <= 0){
+            console.log("BOSS DEFEATED");
+            elBtnLakMain.disabled = true;
+            elBtnLakC01.disabled = true;
+            elBtnLakC02.disabled = true;
+
+            myParty.cMain.cLuck     += fnRandomNumRange(25, 75);
+            myParty.cComp01.cLuck   += fnRandomNumRange(25, 75);
+            myParty.cComp02.cLuck   += fnRandomNumRange(25, 75);
+
+        let tmpRndPath = ["#pgNEWW", "#pgMountain", "#pgBridge"];
+            let tmpRndNextPath = tmpRndPath[fnRandomNumRange(0, 2)];
+            switch(tmpRndNextPath){
+                case "#pgNEWW":
+                    console.log("About to go to NEWW");
+                    myParty._currentScreen = "#pgNEWW";
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "NEWW";
+                    break;
+                case "#pgMountain":
+                    console.log("About to go to Mountain");
+                    myParty._currentScreen = "#pgMountain";
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Mountain";
+                    break;
+                case "#pgBridge":
+                    console.log("About to go to Bridge");
+                    myParty._currentScreen = "#pgBridge"
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Bridge";
+                    break;
+                default:
+                    console.log(tmpRndNextPath);
+                    break;
+            }; // END Switch() for next path
+
+            console.log(myParty);
+
+            document.querySelector("#pLakResults").innerHTML = "<p>Success!</p><p>" + myParty.cComp01.cName + " struck the final attack and defeated " + lakBoss.eType + "!</p><p>You now have " + myParty.cComp01.cLuck +"LUK and get to move on to the " + tmpRndNextPath + ".</p><p><button id='btnLakGoNext'>Next Level</button></p>";
+            let elBtnLakGoNext = document.querySelector("#btnLakGoNext");
+            elBtnLakGoNext.addEventListener("click", function(){fnNavQuest("#pgLake", myParty._currentScreen, myParty._id)});
+        }else{
+            console.log("KEEP FIGHTING", lakBoss.eHp);
+            let tmpHIT = myParty.cComp01.cHP / 10;
+            myParty.cComp01.cHP = Math.round(myParty.cComp01.cHP - tmpHIT);
+            console.log("Main down to", myParty.cComp01.cHP);
+            document.querySelector("#pLakResults").innerHTML = "<p>You have weakened " + lakBoss.eType + " down to " + lakBoss.eHp + "HP! Keep fighting and choose another Party Member!</p>" +
+            "<p>" + myParty.cComp01.cName + " is weakened: " + myParty.cComp01.cHP + "HP!</p>"
+            ; // END #pLakResults
+            fnPartyDrawTable();
+        }; // END If..Else eHP checker
+    }; // END fnLak01
+
+    function fnLakC02Fight(){
+        console.log(myParty.cComp02.cName, myParty.cComp02.cLuck, "VS", lakBoss.eHp);
+        elBtnLakC02.disabled = true;
+        lakBoss.eHp = lakBoss.eHp - myParty.cComp02.cLuck;
+        if(lakBoss.eHp <= 0){
+            console.log("BOSS DEFEATED");
+            elBtnLakMain.disabled = true;
+            elBtnLakC01.disabled = true;
+            elBtnLakC02.disabled = true;
+
+            myParty.cMain.cLuck     += fnRandomNumRange(25, 75);
+            myParty.cComp01.cLuck   += fnRandomNumRange(25, 75);
+            myParty.cComp02.cLuck   += fnRandomNumRange(25, 75);
+
+            let tmpRndPath = ["#pgNEWW", "#pgMountain", "#pgBridge"];
+            let tmpRndNextPath = tmpRndPath[fnRandomNumRange(0, 2)];
+            switch(tmpRndNextPath){
+                case "#pgNEWW":
+                    console.log("About to go to NEWW");
+                    myParty._currentScreen = "#pgNEWW";
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "NEWW";
+                    break;
+                case "#pgMountain":
+                    console.log("About to go to Mountain");
+                    myParty._currentScreen = "#pgMountain";
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Mountain";
+                    break;
+                case "#pgBridge":
+                    console.log("About to go to Bridge");
+                    myParty._currentScreen = "#pgBridge"
+                    localStorage.setItem(myParty._id, JSON.stringify(myParty));
+                    tmpRndNextPath = "Bridge";
+                    break;
+                default:
+                    console.log(tmpRndNextPath);
+                    break;
+            }; // END Switch() for next path
+
+            console.log(myParty);
+
+            document.querySelector("#pLakResults").innerHTML = "<p>Success!</p><p>" + myParty.cComp02.cName + " struck the final attack and defeated " + lakBoss.eType + "!</p><p>You now have " + myParty.cComp02.cLuck +"LUK and get to move on to the " + tmpRndNextPath + ".</p><p><button id='btnLakGoNext'>Next Level</button></p>";
+            let elBtnLakGoNext = document.querySelector("#btnLakGoNext");
+            elBtnLakGoNext.addEventListener("click", function(){fnNavQuest("#pgLake", myParty._currentScreen, myParty._id)});
+        }else{
+            console.log("KEEP FIGHTING", lakBoss.eHp);
+            let tmpHIT = myParty.cComp02.cHP / 10;
+            myParty.cComp02.cHP = Math.round(myParty.cComp02.cHP - tmpHIT);
+            console.log("Main down to", myParty.cComp02.cHP);
+            document.querySelector("#pLakResults").innerHTML = "<p>You have weakened " + lakBoss.eType + " down to " + lakBoss.eHp + "HP! Keep fighting and choose another Party Member!</p>" +
+            "<p>" + myParty.cComp02.cName + " is weakened: " + myParty.cComp02.cHP + "HP!</p>"
+            ; // END #plakResults
+            fnPartyDrawTable();
+        }; // END If..Else eHP checker
+    }; // END fnLak02
+
+}; // END fnLake()
+
 
 // Make inner functions global so HTML can access them
 window.fnNavMenus = fnNavMenus;
@@ -549,6 +1003,3 @@ window.fnGenArray = fnGenArray;
 window.fnGameLoad = fnGameLoad;
 window.fnNavQuest = fnNavQuest;
 window.fnTavern = fnTavern;
-
-// Initialize the game
-fnGameInit();
