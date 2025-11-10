@@ -59,11 +59,11 @@ button {
     background-color: var(--secondary);
     border-color: var(--border);
     border-radius: 10px;
-    font-size: 1rem;
+    font-size: .8rem;
     font-weight: bold;
     color: var(--text-2);
     margin: 5px;
-    padding: 4px;
+    padding: 3px;
 }
 
 table {

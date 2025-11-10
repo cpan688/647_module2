@@ -5,7 +5,8 @@ function fnNavMenus(pgHide, pgShow) {
     console.log("Coming from: " + pgHide);
     console.log("Going to: " + pgShow);
     document.querySelector(pgHide).style.display = "none";  
-    document.querySelector(pgShow).style.display = "block"; 
+    document.querySelector(pgShow).style.display = "block";
+    document.querySelector("#pGameInputWarning").style.display = "none";
 }; // END fnNavMenus()
 
 const arrStats = [10, 25, 50, 75, 100];
@@ -17,6 +18,44 @@ const arrNames = ["Abakor", "Bandala", "Cartin", "Dariane", "Fezzor", "Gizleeni"
 
 // Array to keep track of all Emails associated with each Saved game
 let arrEmails = [];
+
+
+//==================================================================================================
+//  fnGameInit - this function initialize the game - loads previously saved games from localStorage
+//==================================================================================================
+function fnGameInit(){
+    console.log("fnGameInit() is running");
+    document.querySelector("#pgWelcome").style.display = "block";
+
+    // At game start, get the Array of all emails in localStorage
+    let tmpGamesAll = JSON.parse(localStorage.getItem("allEmails"));
+
+    console.log(tmpGamesAll);
+
+    // If no previous data was saved, tell user to go back to create a new game, otherwise show previous saved list
+    if(!tmpGamesAll){
+        console.log("TRUE that we have NO saves");
+        document.querySelector("#pLGPartyMessage").innerHTML = "Hello, you are new... Go back and click on 'Create Game' to begin the game<br>";
+        document.querySelector("#spnLGPartyTotals").innerHTML = "0";
+    } else {
+        console.log("FALSE we do NOT have an EMPTY save slot");
+        document.querySelector("#pLGPartyMessage").innerHTML = "Welcome back! Continue your quest!";
+        document.querySelector("#spnLGPartyTotals").innerHTML = tmpGamesAll.length;
+        document.querySelector("#pLGPartySelect").innerHTML = "&nbsp;";
+
+        // Show the Saved Games (Parties) to select from
+        for(let i = 0; i < tmpGamesAll.length; i++){
+            let tmpPartyData = JSON.parse(localStorage.getItem(tmpGamesAll[i]));
+            document.querySelector("#pLGPartySelect").innerHTML += 
+                "<p>" + tmpPartyData.cMain.cName + " <button onclick='fnGameLoad(`" + tmpGamesAll[i] + "`);'>" + "Enter Game" + "</button></p>";
+        }; //END For()
+        
+    }; // END If..Else()
+}; // END fnGameInit()
+
+// Initialize the game
+fnGameInit();
+
 
 // Global Scope Random Number Generator (min, max) inclusive
 function fnRandomNumRange(min, max) {
@@ -173,42 +212,8 @@ class Enemy {
 }; // END Enemy class (JCN)
 
 
-//========================================================================
-//  fnGameInit - this function initialize the game
-//========================================================================
-function fnGameInit(){
-    console.log("fnGameInit() is running");
-    document.querySelector("#pgWelcome").style.display = "block";
-
-    // At game start, get the Array of all emails in localStorage
-    let tmpGamesAll = JSON.parse(localStorage.getItem("allEmails"));
-
-    // If no previous data was saved, tell user to go back to create a new game, otherwise show previous saved list
-    if(!tmpGamesAll){
-        console.log("TRUE that we have NO saves");
-        document.querySelector("#pLGPartyMessage").innerHTML = "Hello, you are new... Go back and click on 'Create Game' to begin the game<br>";
-        document.querySelector("#spnLGPartyTotals").innerHTML = "0";
-    } else {
-        console.log("FALSE we do NOT have an EMPTY save slot");
-        document.querySelector("#pLGPartyMessage").innerHTML = "Welcome back!<br>Soldier on!";
-        document.querySelector("#spnLGPartyTotals").innerHTML = tmpGamesAll.length;
-        document.querySelector("#pLGPartySelect").innerHTML = "&nbsp;<br>";
-
-        // Show the Saved Games (Parties) to select from
-        for(let i = 0; i < tmpGamesAll.length; i++){
-            let tmpPartyData = JSON.parse(localStorage.getItem(tmpGamesAll[i]));
-            document.querySelector("#pLGPartySelect").innerHTML += 
-                "<p>" + tmpPartyData.cMain.cName + " <button onclick='fnGameLoad(`" + tmpGamesAll[i] + "`);'>" + "Enter Game" + "</button></p>";
-        }; //END For()
-        
-    }; // END If..Else()
-}; // END fnGameInit()
-
-// Initialize the game
-fnGameInit();
-
 //============================================================================
-//  fnGameLoad - this function loads a previously saved game using email id
+//  fnGameLoad - this function loads ONE previously saved game using email id
 //============================================================================
 function fnGameLoad(gData){
     console.log("fnGameLoad() is running, loading " , gData);
@@ -252,8 +257,8 @@ function fnNavQuest(pgHide, pgShow, currParty) {
             console.log("About to initialize The Bridge");
             fnTmpPath(currParty); 
             break;
-        case "#pgNEWW":
-            console.log("About to initialize The NEWW");
+        case "#pgNextLevel":
+            console.log("About to initialize The NextLevel");
             fnTmpPath(currParty); 
             break;
         default: 
@@ -833,14 +838,14 @@ function fnLake(currParty){
             myParty.cComp01.cLuck   += fnRandomNumRange(25, 75);
             myParty.cComp02.cLuck   += fnRandomNumRange(25, 75);
 
-            let tmpRndPath = ["#pgNEWW", "#pgMountain", "#pgBridge"];
+            let tmpRndPath = ["#pgNextLevel", "#pgMountain", "#pgBridge"];
             let tmpRndNextPath = tmpRndPath[fnRandomNumRange(0, 2)];
             switch(tmpRndNextPath){
-                case "#pgNEWW":
-                    console.log("About to go to NEWW");
-                    myParty._currentScreen = "#pgNEWW";
+                case "#pgNextLevel":
+                    console.log("About to go to NextLevel");
+                    myParty._currentScreen = "#pgNextLevel";
                     localStorage.setItem(myParty._id, JSON.stringify(myParty));
-                    tmpRndNextPath = "NEWW";
+                    tmpRndNextPath = "NextLevel";
                     break;
                 case "#pgMountain":
                     console.log("About to go to Mountain");
@@ -861,7 +866,7 @@ function fnLake(currParty){
 
             console.log(myParty);
 
-            document.querySelector("#pLakResults").innerHTML = "<p>Success!</p><p>" + myParty.cMain.cName + " struck the final attack and defeated " + lakBoss.eType + "!</p><p>You now have " + myParty.cMain.cLuck +"LUK and get to move on to the " + tmpRndNextPath + ".</p><p><button id='btnLakGoNext'>Next Level</button></p>";
+            document.querySelector("#pLakResults").innerHTML = "<p>Success!</p><p>" + myParty.cMain.cName + " struck the final attack and defeated " + lakBoss.eType + "!</p><p>You now have " + myParty.cMain.cLuck +"LUK and get to move on to the " + tmpRndNextPath + ".</p><p><button id='btnLakGoNext'>Next</button></p>";
             let elBtnLakGoNext = document.querySelector("#btnLakGoNext");
             elBtnLakGoNext.addEventListener("click", function(){fnNavQuest("#pgLake", myParty._currentScreen, myParty._id)});
         }else{
@@ -894,14 +899,14 @@ function fnLake(currParty){
             myParty.cComp01.cLuck   += fnRandomNumRange(25, 75);
             myParty.cComp02.cLuck   += fnRandomNumRange(25, 75);
 
-        let tmpRndPath = ["#pgNEWW", "#pgMountain", "#pgBridge"];
+        let tmpRndPath = ["#pgNextLevel", "#pgMountain", "#pgBridge"];
             let tmpRndNextPath = tmpRndPath[fnRandomNumRange(0, 2)];
             switch(tmpRndNextPath){
-                case "#pgNEWW":
-                    console.log("About to go to NEWW");
-                    myParty._currentScreen = "#pgNEWW";
+                case "#pgNextLevel":
+                    console.log("About to go to NextLevel");
+                    myParty._currentScreen = "#pgNextLevel";
                     localStorage.setItem(myParty._id, JSON.stringify(myParty));
-                    tmpRndNextPath = "NEWW";
+                    tmpRndNextPath = "NextLevel";
                     break;
                 case "#pgMountain":
                     console.log("About to go to Mountain");
@@ -922,7 +927,7 @@ function fnLake(currParty){
 
             console.log(myParty);
 
-            document.querySelector("#pLakResults").innerHTML = "<p>Success!</p><p>" + myParty.cComp01.cName + " struck the final attack and defeated " + lakBoss.eType + "!</p><p>You now have " + myParty.cComp01.cLuck +"LUK and get to move on to the " + tmpRndNextPath + ".</p><p><button id='btnLakGoNext'>Next Level</button></p>";
+            document.querySelector("#pLakResults").innerHTML = "<p>Success!</p><p>" + myParty.cComp01.cName + " struck the final attack and defeated " + lakBoss.eType + "!</p><p>You now have " + myParty.cComp01.cLuck +"LUK and get to move on to the " + tmpRndNextPath + ".</p><p><button id='btnLakGoNext'>Next</button></p>";
             let elBtnLakGoNext = document.querySelector("#btnLakGoNext");
             elBtnLakGoNext.addEventListener("click", function(){fnNavQuest("#pgLake", myParty._currentScreen, myParty._id)});
         }else{
@@ -951,14 +956,14 @@ function fnLake(currParty){
             myParty.cComp01.cLuck   += fnRandomNumRange(25, 75);
             myParty.cComp02.cLuck   += fnRandomNumRange(25, 75);
 
-            let tmpRndPath = ["#pgNEWW", "#pgMountain", "#pgBridge"];
+            let tmpRndPath = ["#pgNextLevel", "#pgMountain", "#pgBridge"];
             let tmpRndNextPath = tmpRndPath[fnRandomNumRange(0, 2)];
             switch(tmpRndNextPath){
-                case "#pgNEWW":
-                    console.log("About to go to NEWW");
-                    myParty._currentScreen = "#pgNEWW";
+                case "#pgNextLevel":
+                    console.log("About to go to NextLevel");
+                    myParty._currentScreen = "#pgNextLevel";
                     localStorage.setItem(myParty._id, JSON.stringify(myParty));
-                    tmpRndNextPath = "NEWW";
+                    tmpRndNextPath = "NextLevel";
                     break;
                 case "#pgMountain":
                     console.log("About to go to Mountain");
@@ -979,7 +984,7 @@ function fnLake(currParty){
 
             console.log(myParty);
 
-            document.querySelector("#pLakResults").innerHTML = "<p>Success!</p><p>" + myParty.cComp02.cName + " struck the final attack and defeated " + lakBoss.eType + "!</p><p>You now have " + myParty.cComp02.cLuck +"LUK and get to move on to the " + tmpRndNextPath + ".</p><p><button id='btnLakGoNext'>Next Level</button></p>";
+            document.querySelector("#pLakResults").innerHTML = "<p>Success!</p><p>" + myParty.cComp02.cName + " struck the final attack and defeated " + lakBoss.eType + "!</p><p>You now have " + myParty.cComp02.cLuck +"LUK and get to move on to the " + tmpRndNextPath + ".</p><p><button id='btnLakGoNext'>Next</button></p>";
             let elBtnLakGoNext = document.querySelector("#btnLakGoNext");
             elBtnLakGoNext.addEventListener("click", function(){fnNavQuest("#pgLake", myParty._currentScreen, myParty._id)});
         }else{
@@ -997,10 +1002,22 @@ function fnLake(currParty){
 }; // END fnLake()
 
 
+function fnGameRestart(pgHide, pgShow) {
+    fnGameInit();
+    fnNavMenus(pgHide, pgShow);
+}
+
+
 // Make inner functions global so HTML can access them
+window.fnGameInit = fnGameInit;
 window.fnNavMenus = fnNavMenus;
 window.fnCharCreate = fnCharCreate;
 window.fnGenArray = fnGenArray;
 window.fnGameLoad = fnGameLoad;
 window.fnNavQuest = fnNavQuest;
 window.fnTavern = fnTavern;
+window.fnLake = fnLake;
+// window.fnBridge = fnBridge;
+// window.fnMountain = fnMountain;
+// window.fnNextLevel = fnNextLevel;
+window.fnGameRestart = fnGameRestart;
