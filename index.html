@@ -8,7 +8,6 @@
     <script src="components/loader.js"></script>
     <link rel="stylesheet" href="components/loader.css"> -->
     <link rel="stylesheet" href="css/style.css">
-    <!-- <script type="module" src="../js/game.js" defer></script>     -->
 </head>
 <body>
     <section id="pgWelcome">
@@ -21,7 +20,7 @@
             </p>
             <p>
              <button onclick="fnNavMenus('#pgWelcome', '#pgLoadGame');">Load Game</button>  
-             <button onclick="fnNavMenus('#pgWelcome', '#pgCreateGame');">New Game</button>
+             <button onclick="fnGameRestart('#pgWelcome', '#pgCreateGame');">New Game</button>
             </p>
         </main>
         <footer>
@@ -31,7 +30,7 @@
 
     <section id="pgLoadGame">
         <header>
-            <h1><button onclick="fnNavMenus('#pgLoadGame', '#pgWelcome');">Back</button> Load Game</h1>
+            <h2><button onclick="fnGameRestart('#pgLoadGame', '#pgWelcome');">Back</button> Load Game</h2>
         </header>
         <main>
             <p id="pLGPartyMessage">&nbsp;</p>
@@ -44,7 +43,7 @@
 
     <section id="pgCreateGame">
         <header>
-            <h1><button onclick="fnNavMenus('#pgCreateGame', '#pgWelcome');">BACK</button> Create Game</h1>
+            <h2><button onclick="fnNavMenus('#pgCreateGame', '#pgWelcome');">BACK</button> Create Game</h2>
         </header>
         <main>
             <p> The Oracle must know a little bit about you, so that she can assess your skill levels. </p>
@@ -67,7 +66,7 @@
 
     <section id="pgTavern">
         <header>
-            <h1>Foggy Mountain Tavern</h1>
+            <h2>Foggy Mountain Tavern</h2>
         </header>
         <main>
             <p id="pTvnMsg">&nbsp;</p>
@@ -83,7 +82,7 @@
 
     <section id="pgForest">
         <header>
-            <h1>Forest</h1>
+            <h2>Forest</h2>
         </header>
         <main>
             <p id="pFstMsg">&nbsp; Msg</p>
@@ -99,7 +98,7 @@
 
     <section id="pgLake">
         <header>
-            <h1><button onclick="fnGameRestart('#pgLake', '#pgWelcome');">Restart Game</button> Lake</h1>
+            <h2><button onclick="fnGameRestart('#pgLake', '#pgWelcome');">Restart Game</button> Lake</h2>
         </header>
         <main>
             <p id="pLakMsg">&nbsp;</p>
@@ -116,7 +115,7 @@
 
     <section id="pgMountain">
         <header>
-            <h1><button onclick="fnGameRestart('#pgMountain', '#pgWelcome');">Restart Game</button> Mountain</h1>
+            <h2><button onclick="fnGameRestart('#pgMountain', '#pgWelcome');">Restart Game</button> Mountain</h2>
         </header>
         <main>
             <p id="pMntMsg">&nbsp;</p>
@@ -132,7 +131,7 @@
 
     <section id="pgBridge">
         <header>
-            <h1><button onclick="fnGameRestart('#pgBridge', '#pgWelcome');">Restart Game</button> Bridge</h1>
+            <h2><button onclick="fnGameRestart('#pgBridge', '#pgWelcome');">Restart Game</button> Bridge</h2>
         </header>
         <main>
             <p id="pBrdgMsg">&nbsp;</p>
@@ -148,7 +147,7 @@
 
     <section id="pgNextLevel">
         <header>
-            <h1><button onclick="fnGameRestart('#pgNextLevel', '#pgWelcome');">Restart Game</button> NextLevel</h1>
+            <h2><button onclick="fnGameRestart('#pgNextLevel', '#pgWelcome');">Restart Game</button> NextLevel</h2>
         </header>
         <main>
             <p id="pLakMsg">&nbsp;</p>
